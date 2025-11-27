@@ -1,0 +1,55 @@
+<head>
+    <title>GEOptima</title>
+    <link href="/static/home.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+<h1>GEOptima - Как LLM видят Ваш сайт?</h1>
+
+<label for="sitelink">Введите адрес сайта для анализа:</label>
+<br>
+<input type="text" id="sitelink" placeholder="https://example.org/"/>
+
+<div class="websocket-controls">
+    <button id="startWs" onclick="startWebSocket()">Начать анализ</button>
+    <button id="stopWs" onclick="stopWebSocket()" disabled>Остановить</button>
+</div>
+
+<ul id="messages"></ul>
+
+
+<script>
+    let ws;
+
+    function startWebSocket() {
+
+        ws = new WebSocket('/api/bridge/load');
+
+        ws.onopen = () => {
+            document.getElementById('startWs').disabled = true;
+            document.getElementById('stopWs').disabled = false;
+            ws.send(document.getElementById('sitelink').value);
+        };
+
+
+        ws.onmessage = (event) => {
+            const messages = document.getElementById('messages');
+            const li = document.createElement('li');
+            li.textContent = event.data;
+            messages.appendChild(li);
+        };
+
+        ws.onclose = () => {
+            document.getElementById('startWs').disabled = false;
+            document.getElementById('stopWs').disabled = true;
+        };
+    }
+
+    function stopWebSocket() {
+        if (ws) {
+            ws.close();
+            ws = null;
+        }
+    }
+</script>
+</body>
