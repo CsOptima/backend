@@ -12,7 +12,7 @@ io/*.csv
 
 # Confidencial params be warning
 .env
-.flask_secret
+.secret
 .idea
 
 # Byte-compiled / optimized / DLL files
