@@ -46,6 +46,8 @@ async def analyze_site(url: str, db_session: Session = db_client):
 
             pos, word, citation_quality, total_score = calculate_my_metrics(search, url)
             CashProvider.put_metric(content, pos, word, citation_quality, total_score, db_session)
+
+            return {"pos": pos, "word": word, "citation_quality": citation_quality, "total_score": total_score}
     except Exception as exc:
         msg = '\n'.join(traceback.format_exception(type(exc), exc, exc.__traceback__))
         logging.error(msg)
