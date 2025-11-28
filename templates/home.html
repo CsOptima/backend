@@ -15,7 +15,7 @@
     <button id="stopWs" onclick="stopWebSocket()" disabled>Остановить</button>
 </div>
 
-<ul id="messages"></ul>
+<div id="messages"></div>
 
 
 <script>
@@ -34,9 +34,10 @@
 
         ws.onmessage = (event) => {
             const messages = document.getElementById('messages');
-            const li = document.createElement('li');
-            li.textContent = event.data;
-            messages.appendChild(li);
+            const p = document.createElement('p');
+            p.style.whiteSpace = 'pre-wrap';
+            p.textContent = event.data;
+            messages.appendChild(p);
         };
 
         ws.onclose = () => {
