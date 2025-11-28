@@ -9,7 +9,7 @@ class CashProvider():
 
     @staticmethod
     def get_metric(content, db_session: Session):
-        cash = hashlib.sha256(content.decode('utf-8').encode('utf-8')).hexdigest()
+        cash = hashlib.sha256(content.encode('utf-8')).hexdigest()
         line = db_session.query(HTMLCash).filter_by(code=cash).first()
         if line:
             return line.metric
@@ -17,7 +17,7 @@ class CashProvider():
 
     @staticmethod
     def put_metric(content, metric: float, db_session: Session):
-        cash = hashlib.sha256(content.decode('utf-8').encode('utf-8')).hexdigest()
+        cash = hashlib.sha256(content.encode('utf-8')).hexdigest()
         line = HTMLCash(code=cash, metric=metric)
         db_session.add(line)
         db_session.commit()

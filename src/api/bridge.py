@@ -79,6 +79,9 @@ async def websocket_load(websocket: WebSocket, db_session: Session = db_client):
     while True:
         try:
             url = await websocket.receive_text()
+            if not url.startswith("http"):
+                url = "https://" + url
+
             await websocket.send_text("Получение содержимого сайта")
             content = SiteParser.load_page(url)
 
@@ -87,8 +90,8 @@ async def websocket_load(websocket: WebSocket, db_session: Session = db_client):
                 await websocket.send_text("Результат схожести текста")
                 await websocket.send_text(f"Схожесть (TF-IDF, униграммы): {old_metric:.3f}")
             else:
-                text = SiteParser.extract_text(content)
-                await websocket.send_text(text)
+
+                await websocket.send_text(content)
 
                 await websocket.send_text("Поиск информации с помощью GEO")
                 search = YandexSearcher.search_yandex_neuro("Воронежский транспорт")
@@ -97,7 +100,7 @@ async def websocket_load(websocket: WebSocket, db_session: Session = db_client):
                 await websocket.send_text(links)
 
                 await websocket.send_text("Результат схожести текста")
-                level, value = TextComparator.compare(text, search)
+                level, value = TextComparator.compare(content, search)
                 CashProvider.put_metric(content, value, db_session)
                 await websocket.send_text(level)
 
