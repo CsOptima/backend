@@ -19,3 +19,4 @@ DB_PASS = os.getenv('DB_PASS')
 GPT_API_KEY = os.getenv('GPT_API_KEY')
 
 SUMMARIZER_IP = os.getenv('SUMMARIZER_IP')
+LLM_IP = os.getenv('LLM_IP')

@@ -3,15 +3,15 @@ import requests
 from src.core.constants import SUMMARIZER_IP
 
 
-class Summarizer:
+class SummarizerText:
     @staticmethod
-    def summarize(text):
+    def summarize_text(text):
 
         url = f"http://{SUMMARIZER_IP}:8001/summarize"
         payload = {
             "text": text,
-            "min_length": 300,
-            "max_length": 500,
+            "min_length": 100,
+            "max_length": 300,
             "num_beams": 4
         }
         headers = {"Content-Type": "application/json"}

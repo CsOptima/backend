@@ -1,3 +1,5 @@
+import time
+
 from fastapi import APIRouter, WebSocket
 import asyncio
 import requests
@@ -8,10 +10,12 @@ from sqlalchemy.orm import Session
 from src.core.db import db_client
 from src.servicies.cash_provider import CashProvider
 from src.servicies.html_optimizer import HTMLOptimizer
+from src.servicies.llm_asking import LLMAsker
 from src.servicies.site_parser import SiteParser
-from src.servicies.summarize import Summarizer
+from src.servicies.summarize_text import SummarizerText
 from src.servicies.text_comparator import TextComparator
 from src.servicies.yandex_searcher import YandexSearcher
+from src.utils.citation_analyzer import calculate_my_metrics
 
 bridge_router = APIRouter(
     prefix="/bridge",
@@ -86,8 +90,8 @@ async def websocket_load(websocket: WebSocket, db_session: Session = db_client):
             await websocket.send_text("Получение содержимого сайта")
             content = SiteParser.load_page(url)
 
-            old_metric = CashProvider.get_metric(content, db_session)
-            if old_metric:
+            #old_metric = CashProvider.get_metric(content, db_session)
+            if False: #old_metric:
                 await websocket.send_text("Результат схожести текста")
                 await websocket.send_text(f"Схожесть (TF-IDF, униграммы): {old_metric:.3f}")
             else:
@@ -95,19 +99,24 @@ async def websocket_load(websocket: WebSocket, db_session: Session = db_client):
                 await websocket.send_text(content)
 
                 await websocket.send_text("Определение предметной области")
-                summary = Summarizer.summarize(content)
+                summary = SummarizerText.summarize_text(content)
                 await websocket.send_text(summary)
 
-                await websocket.send_text("Поиск информации с помощью GEO")
-                search = YandexSearcher.search_yandex_neuro("Воронежский транспорт")
-                await websocket.send_text(search)
-                links = YandexSearcher.extract_urls(search)
-                await websocket.send_text(links)
+                await websocket.send_text("Генерация вопросов о предметной области")
+                queries = LLMAsker.ask_llm(summary)
+                await websocket.send_text('\n'.join(queries))
 
-                await websocket.send_text("Результат схожести текста")
-                level, value = TextComparator.compare(content, search)
-                CashProvider.put_metric(content, value, db_session)
-                await websocket.send_text(level)
+                await websocket.send_text("Поиск информации с помощью GEO")
+                search = ""
+                for query in queries:
+                    search += YandexSearcher.search_yandex_neuro(query)
+                    search += "\n"
+
+                answer = calculate_my_metrics(search, url)
+                await websocket.send_text(answer)
+
+                #CashProvider.put_metric(content, value_avg, db_session)
+                #await websocket.send_text(f"Схожесть (TF-IDF, униграммы): {value_avg:.3f}")
 
 
         except WebSocketDisconnect:
