@@ -510,4 +510,5 @@ def calculate_my_metrics(response, url):
         answer.append(f"    Total Score: {metrics['total_score']:.4f}")
     #answer.append(f"\nЛучший конкурент:")
     #answer.append(f"  {result['best_competitor']['site']}: {result['best_competitor']['score']:.4f}")
-    return '\n'.join(answer)
+    return result['pos'], result['word'], result['citation_quality'], result['total_score']
+    #return '\n'.join(answer)

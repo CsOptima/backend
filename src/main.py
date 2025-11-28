@@ -12,7 +12,7 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from src.api import api_router
 from src.core.constants import LOCALHOST_IP, PORT
-from src.web import web_router
+
 
 localhost_ip = LOCALHOST_IP
 port = PORT
@@ -39,7 +39,7 @@ app.add_middleware(
 )
 app.add_middleware(SessionMiddleware, secret_key=secret_key)
 app.include_router(api_router)
-app.include_router(web_router)
+
 
 logging.basicConfig(
     filename='errors.log',
@@ -68,7 +68,7 @@ async def integrity_exception_handler(request: Request, exc: RequestValidationEr
 
 @app.get("/")
 async def ping():
-    return RedirectResponse("/web/profile/")
+    return RedirectResponse("/docs")
 
 
 if __name__ == '__main__':

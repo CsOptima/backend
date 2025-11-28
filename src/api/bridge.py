@@ -1,19 +1,15 @@
-import time
+import logging
+import traceback
 
-from fastapi import APIRouter, WebSocket
-import asyncio
-import requests
+from fastapi import APIRouter, HTTPException
 
-from starlette.websockets import WebSocketDisconnect
 from sqlalchemy.orm import Session
 
 from src.core.db import db_client
 from src.servicies.cash_provider import CashProvider
-from src.servicies.html_optimizer import HTMLOptimizer
 from src.servicies.llm_asking import LLMAsker
 from src.servicies.site_parser import SiteParser
 from src.servicies.summarize_text import SummarizerText
-from src.servicies.text_comparator import TextComparator
 from src.servicies.yandex_searcher import YandexSearcher
 from src.utils.citation_analyzer import calculate_my_metrics
 
@@ -24,100 +20,33 @@ bridge_router = APIRouter(
 
 
 @bridge_router.get("/")
-async def get_atp_report(number: int) -> int:
-    return number
+async def analyze_site(url: str, db_session: Session = db_client):
+    try:
+        if not url.startswith("http"):
+            url = "https://" + url
 
+        content = SiteParser.load_page(url)
+        print(content)
 
-@bridge_router.websocket("/counter")
-async def websocket_counter(websocket: WebSocket):
-    await websocket.accept()
-    counter = 1
-    while True:
-        try:
-            await websocket.send_text(str(counter))
-            counter += 1
-            await asyncio.sleep(1)
-        except WebSocketDisconnect:
-            break
+        old_metrics = CashProvider.get_metric(content, db_session)
 
+        if old_metrics:
+            return {"pos": old_metrics[0],
+                    "word": old_metrics[1], "citation_quality": old_metrics[2], "total_score": old_metrics[3]}
+        else:
+            summary = SummarizerText.summarize_text(content)
 
-@bridge_router.websocket("/load2")
-async def websocket_load(websocket: WebSocket):
-    await websocket.accept()
-    while True:
-        try:
-            info = await websocket.receive_text()
-            await websocket.send_text("Поиск информации с помощью GEO")
-            text = YandexSearcher.search_yandex_neuro(info)
-            links = YandexSearcher.extract_urls(text)
-            await websocket.send_text(links)
-        except WebSocketDisconnect:
-            break
+            queries = LLMAsker.ask_llm(summary)
+            print('\n'.join(queries))
 
+            search = ""
+            for query in queries:
+                search += YandexSearcher.search_yandex_neuro(query)
+                search += "\n"
 
-@bridge_router.websocket("/load3")
-async def websocket_load(websocket: WebSocket):
-    await websocket.accept()
-    while True:
-        try:
-            info = await websocket.receive_text()
-
-            await websocket.send_text("Получение содержимого сайта")
-            text = SiteParser.extract_text(info)
-            await websocket.send_text(text)
-
-            await websocket.send_text("Получение структуры сайта")
-            optimizer = HTMLOptimizer(info)
-
-            await websocket.send_text("Отправка запроса в LLM модель")
-            upd_head, upd_body = await optimizer.optimize()
-
-            await websocket.send_text(upd_head)
-            await websocket.send_text(upd_body)
-        except WebSocketDisconnect:
-            break
-
-
-@bridge_router.websocket("/load")
-async def websocket_load(websocket: WebSocket, db_session: Session = db_client):
-    await websocket.accept()
-    while True:
-        try:
-            url = await websocket.receive_text()
-            if not url.startswith("http"):
-                url = "https://" + url
-
-            await websocket.send_text("Получение содержимого сайта")
-            content = SiteParser.load_page(url)
-
-            #old_metric = CashProvider.get_metric(content, db_session)
-            if False: #old_metric:
-                await websocket.send_text("Результат схожести текста")
-                await websocket.send_text(f"Схожесть (TF-IDF, униграммы): {old_metric:.3f}")
-            else:
-
-                await websocket.send_text(content)
-
-                await websocket.send_text("Определение предметной области")
-                summary = SummarizerText.summarize_text(content)
-                await websocket.send_text(summary)
-
-                await websocket.send_text("Генерация вопросов о предметной области")
-                queries = LLMAsker.ask_llm(summary)
-                await websocket.send_text('\n'.join(queries))
-
-                await websocket.send_text("Поиск информации с помощью GEO")
-                search = ""
-                for query in queries:
-                    search += YandexSearcher.search_yandex_neuro(query)
-                    search += "\n"
-
-                answer = calculate_my_metrics(search, url)
-                await websocket.send_text(answer)
-
-                #CashProvider.put_metric(content, value_avg, db_session)
-                #await websocket.send_text(f"Схожесть (TF-IDF, униграммы): {value_avg:.3f}")
-
-
-        except WebSocketDisconnect:
-            break
+            pos, word, citation_quality, total_score = calculate_my_metrics(search, url)
+            CashProvider.put_metric(content, pos, word, citation_quality, total_score, db_session)
+    except Exception as exc:
+        msg = '\n'.join(traceback.format_exception(type(exc), exc, exc.__traceback__))
+        logging.error(msg)
+        raise HTTPException(500, str(exc))

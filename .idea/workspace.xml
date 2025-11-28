@@ -5,9 +5,18 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="80efbe0c-4f98-4f07-a18f-81512aae22e4" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alembic/versions/8209716a6528_upd_metric_1.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/alembic/versions/d22b2841df56_created_first_cash_table.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/__init__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/api/bridge.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/bridge.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/core/constants.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/constants.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/servicies/summarize.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/servicies/summarize_text.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/orm/html_cash.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/orm/html_cash.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/servicies/cash_provider.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/servicies/cash_provider.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/servicies/llm_asking.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/servicies/llm_asking.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/utils/citation_analyzer.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/citation_analyzer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/web/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/web/profile.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -115,6 +124,8 @@
       <workItem from="1764318004456" duration="926000" />
       <workItem from="1764319052229" duration="2525000" />
       <workItem from="1764322187446" duration="15898000" />
+      <workItem from="1764341275294" duration="602000" />
+      <workItem from="1764351336942" duration="5158000" />
     </task>
     <servers />
   </component>
@@ -134,7 +145,7 @@
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/GEOptima$main.coverage" NAME="main Coverage Results" MODIFIED="1764245294088" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
-    <SUITE FILE_PATH="coverage/GEOptima$GEOPtima.coverage" NAME="GEOPtima Coverage Results" MODIFIED="1764340769368" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/GEOptima$GEOPtima.coverage" NAME="GEOPtima Coverage Results" MODIFIED="1764358328677" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/GEOptima$profile.coverage" NAME="profile Coverage Results" MODIFIED="1764245274470" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/web" />
   </component>
 </project>
