@@ -3,7 +3,10 @@ import asyncio
 import requests
 
 from starlette.websockets import WebSocketDisconnect
+from sqlalchemy.orm import Session
 
+from src.core.db import db_client
+from src.servicies.cash_provider import CashProvider
 from src.servicies.html_optimizer import HTMLOptimizer
 from src.servicies.site_parser import SiteParser
 from src.servicies.text_comparator import TextComparator
@@ -71,25 +74,33 @@ async def websocket_load(websocket: WebSocket):
 
 
 @bridge_router.websocket("/load")
-async def websocket_load(websocket: WebSocket):
+async def websocket_load(websocket: WebSocket, db_session: Session = db_client):
     await websocket.accept()
     while True:
         try:
-            info = await websocket.receive_text()
+            url = await websocket.receive_text()
             await websocket.send_text("Получение содержимого сайта")
+            content = SiteParser.load_page(url)
 
-            text = SiteParser.extract_text(info)
-            await websocket.send_text(text)
+            old_metric = CashProvider.get_metric(content, db_session)
+            if old_metric:
+                await websocket.send_text("Результат схожести текста")
+                await websocket.send_text(f"Схожесть (TF-IDF, униграммы): {old_metric:.3f}")
+            else:
+                text = SiteParser.extract_text(content)
+                await websocket.send_text(text)
 
-            await websocket.send_text("Поиск информации с помощью GEO")
-            search = YandexSearcher.search_yandex_neuro("Воронежский транспорт")
-            await websocket.send_text(search)
-            links = YandexSearcher.extract_urls(search)
-            await websocket.send_text(links)
+                await websocket.send_text("Поиск информации с помощью GEO")
+                search = YandexSearcher.search_yandex_neuro("Воронежский транспорт")
+                await websocket.send_text(search)
+                links = YandexSearcher.extract_urls(search)
+                await websocket.send_text(links)
 
-            await websocket.send_text("Результат схожести текста")
-            level = TextComparator.compare(text, search)
-            await websocket.send_text(level)
+                await websocket.send_text("Результат схожести текста")
+                level, value = TextComparator.compare(text, search)
+                CashProvider.put_metric(content, value, db_session)
+                await websocket.send_text(level)
+
 
         except WebSocketDisconnect:
             break

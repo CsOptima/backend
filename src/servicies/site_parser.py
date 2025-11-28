@@ -3,12 +3,16 @@ from lxml import html
 
 
 class SiteParser:
+
     @staticmethod
-    def extract_text(url: str) -> str:
+    def load_page(url: str) -> str:
         response = requests.get(url)
         response.raise_for_status()
+        return response.content
 
-        tree = html.fromstring(response.content)
+    @staticmethod
+    def extract_text(content) -> str:
+        tree = html.fromstring(content)
 
         text_content = tree.xpath(
             '//text()[not(ancestor::script)][not(ancestor::style)][not(ancestor::meta)]'
