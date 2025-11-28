@@ -17,3 +17,5 @@ DB_USER = os.getenv('DB_USER')
 DB_PASS = os.getenv('DB_PASS')
 
 GPT_API_KEY = os.getenv('GPT_API_KEY')
+
+SUMMARIZER_IP = os.getenv('SUMMARIZER_IP')

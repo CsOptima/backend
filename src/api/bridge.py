@@ -9,6 +9,7 @@ from src.core.db import db_client
 from src.servicies.cash_provider import CashProvider
 from src.servicies.html_optimizer import HTMLOptimizer
 from src.servicies.site_parser import SiteParser
+from src.servicies.summarize import Summarizer
 from src.servicies.text_comparator import TextComparator
 from src.servicies.yandex_searcher import YandexSearcher
 
@@ -92,6 +93,10 @@ async def websocket_load(websocket: WebSocket, db_session: Session = db_client):
             else:
 
                 await websocket.send_text(content)
+
+                await websocket.send_text("Определение предметной области")
+                summary = Summarizer.summarize(content)
+                await websocket.send_text(summary)
 
                 await websocket.send_text("Поиск информации с помощью GEO")
                 search = YandexSearcher.search_yandex_neuro("Воронежский транспорт")
