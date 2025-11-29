@@ -7,7 +7,7 @@ class LLMAsker:
     @staticmethod
     def ask_llm(subject):
 
-        url = f"http://{LLM_IP}:8003/v1/chat/completions"
+        url = f"http://{LLM_IP}:8000/v1/chat/completions"
         payload = {
             "message": subject,
         }
