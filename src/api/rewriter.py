@@ -6,18 +6,20 @@ from fastapi import APIRouter, HTTPException
 from sqlalchemy.orm import Session
 
 from src.core.db import db_client
+from src.json.url_in import UrlIn
 from src.servicies.html_optimizer import HTMLOptimizer
 
 
 rewriter_router = APIRouter(
-    prefix="/rewriter",
+    prefix="/update",
     tags=["Улучшитель"],
 )
 
 
-@rewriter_router.get("/")
-async def rewrite_site(url: str, db_session: Session = db_client):
+@rewriter_router.post("/")
+async def rewrite_site(payload: UrlIn, db_session: Session = db_client):
     try:
+        url = payload.url
         if not url.startswith("http"):
             url = "https://" + url
 
@@ -25,8 +27,8 @@ async def rewrite_site(url: str, db_session: Session = db_client):
 
         upd_head, upd_body = await optimizer.optimize()
 
-        return {"upd_head": upd_head,
-                "upd_body": upd_body}
+        return {"head": upd_head.replace('```', ''),
+                "body": upd_body.replace('```', '')}
     except Exception as exc:
         msg = '\n'.join(traceback.format_exception(type(exc), exc, exc.__traceback__))
         logging.error(msg)

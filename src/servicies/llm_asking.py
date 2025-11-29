@@ -13,7 +13,7 @@ class LLMAsker:
         }
         headers = {"Content-Type": "application/json"}
 
-        resp = requests.post(url, json=payload, headers=headers, timeout=60)
+        resp = requests.post(url, json=payload, headers=headers, timeout=120)
         resp.raise_for_status()
 
         return resp.json()['queries']
